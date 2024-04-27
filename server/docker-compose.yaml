@@ -1,0 +1,44 @@
+version: "3.7"
+name: tiki_backend
+networks:
+  tiki:
+
+services:
+  tiki_mysql:
+    image: mysql:8
+    container_name: tiki_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: tiki2024
+      MYSQL_DATABASE: tiki
+      MYSQL_USER: tiki
+      MYSQL_PASSWORD: tiki2024
+    volumes:
+      - ./docker/mysql:/var/lib/mysql
+    networks:
+      - tiki
+    ports:
+      - "3306:3306"
+
+  tiki_server:
+    container_name: tiki_server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+    environment:
+      NODE_ENV: development
+      DB_HOST: tiki_mysql
+      DB_USERNAME: tiki
+      DB_PASSWORD: tiki2024
+      DB_DATABASE: tiki
+    depends_on:
+      - tiki_mysql
+    command: yarn dev
+    ports:
+      - "8000:8000"
+    networks:
+      - tiki
+
+volumes:
+  mysql:
